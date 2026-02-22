@@ -2,7 +2,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {prisma} from "../../lib/prisma.js"
 
-export const signup = async (req, res) => {
+import type { Request, Response } from "express";
+
+export const signup = async (req: Request, res: Response) => {
   const { name, username, email, password } = req.body;
 
   // 1. Check existing user
@@ -48,7 +50,7 @@ export const signup = async (req, res) => {
 
 
 
-export const login = async (req, res) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   const user = await prisma.user.findUnique({

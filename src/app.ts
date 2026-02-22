@@ -4,7 +4,7 @@ import { responseLogger } from './middleware/logger'
 const app = express()
 // app.use(morgan("dev"))
 app.use(responseLogger)
-import authRoutes from "./common/routes/auth.routes.ts"
+import authRoutes from "./common/routes/auth.routes"
 
 app.use(express.json())
 
