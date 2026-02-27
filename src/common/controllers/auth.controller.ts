@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import {prisma} from "../../lib/prisma.js"
+import { prisma } from "../../lib/prisma.js"
 
 import type { Request, Response } from "express";
 
@@ -31,10 +31,12 @@ export const signup = async (req: Request, res: Response) => {
     },
   });
 
-  // 4. Generate token
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is not set");
+  }
   const token = jwt.sign(
     { userId: user.id },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET as string,
     { expiresIn: "15m" }
   );
 
@@ -61,12 +63,14 @@ export const login = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  const isValid = await bcrypt.compare(password, user.password);
+  const isValid = await bcrypt.compare(password, user.passwordHash);
 
   if (!isValid) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
-
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is not set");
+  }
   const token = jwt.sign(
     { userId: user.id },
     process.env.JWT_SECRET,
@@ -74,10 +78,11 @@ export const login = async (req: Request, res: Response) => {
   );
 
   res.json({
-    token,
     user: {
       id: user.id,
       username: user.username,
+      token,
     },
   });
 };
+
